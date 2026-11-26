@@ -8492,6 +8492,42 @@ const CRANE_DATABASE = [
       }
     }
 
+    /* Lifting Plan Language Switcher (TH / EN) */
+    .lp-lang-switch {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .lp-lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-tech);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .lp-lang-btn:hover {
+      color: #f8fafc;
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .lp-lang-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(2, 132, 199, 0.45);
+    }
+
     /* Print Lift Plan Stylesheet */
     @page {
       size: A4 portrait;
@@ -9036,42 +9072,46 @@ const CRANE_DATABASE = [
 <!-- Modal: Lifting Plan 2-Page Report Preview -->
 <div id="modal-lift-plan" class="modal-overlay">
   <div class="modal-card lift-plan-modal-card">
-    <div class="modal-header">
-      <h2>📋 รายงานแผนการยกโมบายเครน (Lifting Plan & Load Chart Report — 2 หน้า)</h2>
-      <div style="display: flex; align-items: center; gap: 10px;">
+    <div class="modal-header" style="gap: 12px;">
+      <h2 id="lp-modal-title" style="font-size: 14.5px;">📋 รายงานแผนการยกโมบายเครน (Lifting Plan — 2 หน้า)</h2>
+      <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+        <div class="lp-lang-switch" role="group" aria-label="Report Language">
+          <button type="button" id="btn-lp-lang-th" class="lp-lang-btn active" data-lang="th">🌐 ไทย (TH)</button>
+          <button type="button" id="btn-lp-lang-en" class="lp-lang-btn" data-lang="en">EN</button>
+        </div>
         <button id="btn-print-lift-plan" class="btn btn-primary" title="พิมพ์รายงานหรือบันทึกเป็น PDF 2 หน้า">
-          <span>🖨️</span> พิมพ์ / บันทึก PDF (2 หน้า)
+          <span>🖨️</span> <span id="lp-print-btn-text">พิมพ์ / บันทึก PDF (2 หน้า)</span>
         </button>
         <button class="close-modal" id="btn-close-lift-plan">&times;</button>
       </div>
     </div>
     <div class="lp-project-form">
       <div class="lp-form-field">
-        <label>เลขที่เอกสาร (Permit No.)</label>
+        <label id="lp-lbl-permit-no" for="lp-input-permit-no">เลขที่เอกสาร (Permit No.)</label>
         <input type="text" id="lp-input-permit-no" placeholder="LP-2026-001">
       </div>
       <div class="lp-form-field">
-        <label>ชื่อโครงการ (Project Name)</label>
+        <label id="lp-lbl-project" for="lp-input-project">ชื่อโครงการ (Project Name)</label>
         <input type="text" id="lp-input-project" placeholder="ระบุชื่อโครงการ...">
       </div>
       <div class="lp-form-field">
-        <label>สถานที่หน้างาน (Site Location)</label>
+        <label id="lp-lbl-site" for="lp-input-site">สถานที่หน้างาน (Site Location)</label>
         <input type="text" id="lp-input-site" placeholder="ระบุโซน/ตำแหน่งงาน...">
       </div>
       <div class="lp-form-field">
-        <label>รายละเอียดชิ้นงาน (Load Description)</label>
+        <label id="lp-lbl-load-desc" for="lp-input-load-desc">รายละเอียดชิ้นงาน (Load Description)</label>
         <input type="text" id="lp-input-load-desc" placeholder="ตู้คอนเทนเนอร์ / อุปกรณ์">
       </div>
       <div class="lp-form-field">
-        <label>ผู้ควบคุมเครน (Crane Operator)</label>
+        <label id="lp-lbl-operator" for="lp-input-operator">ผู้ควบคุมเครน (Crane Operator)</label>
         <input type="text" id="lp-input-operator" placeholder="ชื่อผู้ควบคุมเครน">
       </div>
       <div class="lp-form-field">
-        <label>ผู้ให้สัญญาณ (Rigger / Signalman)</label>
+        <label id="lp-lbl-rigger" for="lp-input-rigger">ผู้ให้สัญญาณ (Rigger / Signalman)</label>
         <input type="text" id="lp-input-rigger" placeholder="ชื่อผู้ให้สัญญาณ">
       </div>
       <div class="lp-form-field" style="grid-column: span 2;">
-        <label>จป. / วิศวกรผู้อนุมัติ (Safety / Site Engineer)</label>
+        <label id="lp-lbl-safety" for="lp-input-safety">จป. / วิศวกรผู้อนุมัติ (Safety / Site Engineer)</label>
         <input type="text" id="lp-input-safety" placeholder="ชื่อ จป. / วิศวกรควบคุมงาน">
       </div>
     </div>
@@ -9118,7 +9158,8 @@ const state = {
   matWidth: 1.50,
   matLength: 1.50,
   lastGroundResult: null,
-  // Project / Permit Metadata
+  // Project / Permit Metadata & Report Language
+  reportLang: 'th',
   projectMeta: {
     permitNo: 'LP-2026-001',
     projectName: '',
@@ -9233,6 +9274,10 @@ const UI = {
   liftPlanPreviewBody: document.getElementById('lift-plan-preview-body'),
   btnCloseLiftPlan: document.getElementById('btn-close-lift-plan'),
   btnPrintLiftPlan: document.getElementById('btn-print-lift-plan'),
+  lpModalTitle: document.getElementById('lp-modal-title'),
+  lpPrintBtnText: document.getElementById('lp-print-btn-text'),
+  btnLpLangTh: document.getElementById('btn-lp-lang-th'),
+  btnLpLangEn: document.getElementById('btn-lp-lang-en'),
   lpInputPermitNo: document.getElementById('lp-input-permit-no'),
   lpInputProject: document.getElementById('lp-input-project'),
   lpInputSite: document.getElementById('lp-input-site'),
@@ -9272,10 +9317,310 @@ if (typeof CRANE_DATABASE === 'undefined' || !CRANE_DATABASE.length) {
 }
 
 /* =====================================================================
+ * BILINGUAL LIFTING PLAN DICTIONARY (TH / EN)
+ * ===================================================================== */
+const LP_I18N = {
+  th: {
+    locale: 'th-TH',
+    modalTitle: '📋 รายงานแผนการยกโมบายเครน (Lifting Plan — 2 หน้า)',
+    printBtn: 'พิมพ์ / บันทึก PDF (2 หน้า)',
+    printTitle: 'พิมพ์รายงานหรือบันทึกเป็น PDF 2 หน้า',
+    formLabels: {
+      permitNo: 'เลขที่เอกสาร (Permit No.)',
+      projectName: 'ชื่อโครงการ (Project Name)',
+      siteLocation: 'สถานที่หน้างาน (Site Location)',
+      loadDesc: 'รายละเอียดชิ้นงาน (Load Description)',
+      operatorName: 'ผู้ควบคุมเครน (Crane Operator)',
+      riggerName: 'ผู้ให้สัญญาณ (Rigger / Signalman)',
+      safetyName: 'จป. / วิศวกรผู้อนุมัติ (Safety / Site Engineer)'
+    },
+    formPlaceholders: {
+      permitNo: 'LP-2026-001',
+      projectName: 'ระบุชื่อโครงการ...',
+      siteLocation: 'ระบุโซน/ตำแหน่งงาน...',
+      loadDesc: 'ตู้คอนเทนเนอร์ / อุปกรณ์',
+      operatorName: 'ชื่อผู้ควบคุมเครน',
+      riggerName: 'ชื่อผู้ให้สัญญาณ',
+      safetyName: 'ชื่อ จป. / วิศวกรควบคุมงาน'
+    },
+    defaultLoadDescDisplay: 'ตู้คอนเทนเนอร์ / ชิ้นงานมาตรฐาน',
+    p1Title: 'CRANE LIFTING PLAN & SAFETY VERIFICATION PERMIT',
+    p1Subtitle: 'แผนการยกและตรวจสอบความปลอดภัยโมบายเครนประจำวัน',
+    pageBadge1: 'PAGE 1 / 2',
+    pageBadge2: 'PAGE 2 / 2',
+    permitLbl: 'Permit:',
+    stripProject: 'โครงการ (Project)',
+    stripSite: 'สถานที่ปฏิบัติงาน (Site Location)',
+    stripLoad: 'รายละเอียดชิ้นงาน (Load Description)',
+    sec1Title: '1. ข้อมูลโมบายเครน (Crane Specifications)',
+    lblBrandModel: 'ยี่ห้อ/รุ่น:',
+    lblBoomAngleSlew: 'ความยาวบูม / องศา / สวิง:',
+    lblCwt: 'น้ำหนักถ่วง (CWT):',
+    lblOutrigger: 'ขาค้ำยัน:',
+    extendedTxt: 'Extended',
+    axlesTxt: 'Axles',
+    sec2Title: '2. วิเคราะห์พิกัดยก (Capacity & SWL)',
+    lblNetRig: 'Net / Rigging:',
+    lblRadiusShort: 'รัศมี (R):',
+    lblGrossLoad: 'Gross Load:',
+    lblRatedSwl: 'Rated SWL:',
+    lblMargin: 'Margin:',
+    lblHeightCargoTip: 'สูงวัสดุ / ปลายบูม:',
+    statusSafe: '✓ ปลอดภัย (SAFE LIFT)',
+    statusCrit: '⚠ เตือนใกล้พิกัด (CRITICAL LIFT)',
+    statusOver: '❌ อันตรายเกินพิกัดยก (OVERLOAD HAZARD)',
+    sec3Title: '3. แรงกดดินและสิ่งกีดขวาง (Ground & Obstacle)',
+    lblMaxLeg: 'แรงกดขาสูงสุด (F_max):',
+    lblCraneWt: 'CWT+รถ:',
+    lblGroundAllow: 'แรงกดดิน / กำลังรับดิน:',
+    lblMatUsedMin: 'แผ่นรองที่ใช้ / แนะนำขั้นต่ำ:',
+    lblMinRecPrefix: 'แนะนำ ≥',
+    lblGroundEval: 'ประเมินฐานรากดิน:',
+    groundSafe: 'SAFE GROUND (ดินรับน้ำหนักได้ปลอดภัย)',
+    groundMarginal: 'MARGINAL SOIL (ใกล้ขีดจำกัดดิน)',
+    groundDanger: 'GROUND FAILURE RISK (แรงกดเกินกำลังดิน!)',
+    obsEnabledPrefix: 'อาคารสิ่งกีดขวาง',
+    obsHeightShort: 'สูง',
+    obsBoomClr: 'ห่างบูม',
+    obsCargoClr: 'ห่างวัสดุ',
+    obsClear: 'CLEAR (ปลอดภัย)',
+    obsWarn: 'WARNING (< 1.00 m)',
+    obsCollision: 'COLLISION (ชนสิ่งกีดขวาง!)',
+    obsOffPrefix: 'สิ่งกีดขวาง 3 มิติ (Obstacle Check):',
+    obsOffText: 'ไม่ได้เปิดจำลองอาคารสิ่งกีดขวาง (Clear Site)',
+    sec4Title: '4. แบบจำลองเครน 3 มิติและระยะปฏิบัติการ (3D Crane Geometry & Dimensions)',
+    fig1Caption: 'รูปที่ 1: มุมมองด้านข้าง 3 มิติ (แสดงระยะรัศมี ความสูง บูม องศา และระยะสิ่งกีดขวาง)',
+    fig2Caption: 'รูปที่ 2: มุมมองด้านบน (Plan View)',
+    chipRadius: 'รัศมีปฏิบัติการ (R)',
+    chipLoadH: 'ความสูงยกวัสดุ',
+    chipTipH: 'ความสูงปลายบูม',
+    chipBoomL: 'ความยาวบูม (L)',
+    chipBoomA: 'องศาบูม (Angle)',
+    chipSlewA: 'มุมสวิง (Slew)',
+    sec5Title: '5. Safety Sign-off / ลายมือชื่อผู้รับผิดชอบหน้างาน:',
+    signOp: 'ผู้ควบคุมเครน (Crane Operator)',
+    signRigger: 'ผู้ให้สัญญาณ/ควบคุมการยก (Rigger)',
+    signSafety: 'จป. / วิศวกรควบคุมงาน (Safety / Engineer)',
+    p2Title: 'RATED LIFTING CAPACITY LOAD CHART',
+    p2SubtitlePrefix: 'ตารางพิกัดยกปลอดภัย:',
+    cfgModel: 'รุ่นโมบายเครน (Model)',
+    cfgCwt: 'น้ำหนักถ่วง (Counterweight)',
+    cfgOutrigger: 'โหมดขาค้ำยัน (Outrigger Mode)',
+    cfgUnit: 'หน่วยพิกัดยก (Unit)',
+    cfgUnitVal: 'Metric Tonnes (t) • กางรอบตัว 360°',
+    matrixTitle: 'ตารางพิกัดยกตามระยะรัศมีและความยาวบูม (Rated Capacity Matrix)',
+    matrixActiveNote: (r, b) => `★ ช่องสีน้ำเงิน = จุดอ้างอิงใกล้เคียงสุด (${r} m / บูม ${b} m)`,
+    tblRadius: 'รัศมี (m)',
+    tblBoom: (b) => `บูม ${b} m`,
+    opSummaryTitle: 'สรุปค่าจุดทำงานจริงแบบประมาณค่าในช่วง (Interpolated Operating Point Summary)',
+    opRadius: 'รัศมีปฏิบัติการ (R):',
+    opBoom: 'ความยาวบูม (L):',
+    opAngleWord: 'องศา',
+    opSwl: 'พิกัดยกประเมิน (Rated SWL):',
+    opGross: 'น้ำหนักยกรวม (Gross Load):',
+    opMargin: 'ความปลอดภัยคงเหลือ (Margin):',
+    opUtil: '% SWL Utilization:',
+    notesTitle: 'หมายเหตุและข้อกำหนดความปลอดภัยมาตรฐาน (Standard Load Chart Notes):',
+    notesList: (pct) => [
+      'ค่าพิกัดในตารางรวมอุปกรณ์ช่วยยก ตะขอ และสลิงแล้ว (Gross Capacity) — ต้องนำน้ำหนักชิ้นงานรวมกับตะขอ/สลิงเทียบไม่เกิน Rated SWL',
+      `ตัวเลขแสดงค่าเป็นระดับขาค้ำยัน <strong>${pct}%</strong> บนพื้นแข็งได้ระดับแนวราบ 100% พร้อมแผ่นรองรับขา (Outrigger Mats) ที่เหมาะสมกับแรงกดดิน`,
+      'กรณีระยะรัศมีหรือความยาวบูมอยู่ระหว่างช่องตาราง ให้ยึดค่าที่ต่ำกว่าเป็นหลัก หรือใช้ค่าประมาณช่วง (Interpolated Rated SWL) ด้านบนประกอบการอนุมัติ',
+      'ห้ามทำการยกเมื่อมีความเร็วลมเกินพิกัดคู่มือผู้ผลิต หรือเมื่อค่าการใช้งานเกิน 100% SWL (Overload) โดยเด็ดขาด'
+    ],
+    cadSideBanner: 'SIDE-3D ELEVATION VIEW • มุมมองด้านข้างแสดงระยะครบถ้วน',
+    cadTopBanner: 'PLAN VIEW • มุมมองด้านบน',
+    cadRadius: (v) => `↔ รัศมี R: ${v} m`,
+    cadLoadH: (v) => `↨ สูงวัสดุ: ${v} m`,
+    cadTipH: (v) => `▲ สูงปลายบูม: ${v} m`,
+    cadBoomL: (v) => `ความยาวบูม L: ${v} m`,
+    cadGross: (v) => `น้ำหนักรวม: ${v} t`,
+    cadObs: (v) => `🏢 ห่างอาคาร: ${v} m`,
+    cadFront: '0° หน้าเครน',
+    cadSlew: (v) => `สวิง ${v}°`,
+    cadOutrigger: (l, w, p) => `ขาค้ำยัน: ${l} × ${w} m (${p}%)`
+  },
+  en: {
+    locale: 'en-GB',
+    modalTitle: '📋 Mobile Crane Lifting Plan & Load Chart Report (2 Pages)',
+    printBtn: 'Print / Save PDF (2 Pages)',
+    printTitle: 'Print or save 2-page Lifting Plan & Load Chart PDF',
+    formLabels: {
+      permitNo: 'Document / Permit No.',
+      projectName: 'Project Name',
+      siteLocation: 'Site Location / Zone',
+      loadDesc: 'Load Description',
+      operatorName: 'Crane Operator',
+      riggerName: 'Rigger / Signalman',
+      safetyName: 'Safety Officer / Site Engineer'
+    },
+    formPlaceholders: {
+      permitNo: 'LP-2026-001',
+      projectName: 'Enter project name...',
+      siteLocation: 'Enter site / work zone...',
+      loadDesc: 'Container / Equipment Load',
+      operatorName: 'Operator full name',
+      riggerName: 'Rigger / Signalman name',
+      safetyName: 'Safety Officer / Engineer name'
+    },
+    defaultLoadDescDisplay: 'Standard Container / Equipment Load',
+    p1Title: 'CRANE LIFTING PLAN & SAFETY VERIFICATION PERMIT',
+    p1Subtitle: 'Daily Mobile Crane Lifting Plan & Engineering Safety Assessment',
+    pageBadge1: 'PAGE 1 / 2',
+    pageBadge2: 'PAGE 2 / 2',
+    permitLbl: 'Permit:',
+    stripProject: 'Project Name',
+    stripSite: 'Site Location',
+    stripLoad: 'Load Description',
+    sec1Title: '1. Mobile Crane Specifications',
+    lblBrandModel: 'Make / Model:',
+    lblBoomAngleSlew: 'Boom / Angle / Slew:',
+    lblCwt: 'Counterweight (CWT):',
+    lblOutrigger: 'Outriggers:',
+    extendedTxt: 'Extended',
+    axlesTxt: 'Axles',
+    sec2Title: '2. Capacity & SWL Analysis',
+    lblNetRig: 'Net / Rigging:',
+    lblRadiusShort: 'Radius (R):',
+    lblGrossLoad: 'Gross Load:',
+    lblRatedSwl: 'Rated SWL:',
+    lblMargin: 'Safety Margin:',
+    lblHeightCargoTip: 'Load / Tip Height:',
+    statusSafe: '✓ SAFE LIFT',
+    statusCrit: '⚠ CRITICAL LIFT (NEAR LIMIT)',
+    statusOver: '❌ OVERLOAD HAZARD (DO NOT LIFT)',
+    sec3Title: '3. Ground Bearing & Obstacle Clearance',
+    lblMaxLeg: 'Max Leg Reaction (F_max):',
+    lblCraneWt: 'Total Wt:',
+    lblGroundAllow: 'Bearing / Allowable:',
+    lblMatUsedMin: 'Pad Used / Min Rec.:',
+    lblMinRecPrefix: 'Min ≥',
+    lblGroundEval: 'Ground Bearing Status:',
+    groundSafe: 'SAFE GROUND (Within Allowable Bearing)',
+    groundMarginal: 'MARGINAL SOIL (Near Soil Limit)',
+    groundDanger: 'GROUND FAILURE RISK (Exceeds Bearing!)',
+    obsEnabledPrefix: 'Obstacle / Building',
+    obsHeightShort: 'H',
+    obsBoomClr: 'Boom Clr',
+    obsCargoClr: 'Load Clr',
+    obsClear: 'CLEAR (Safe)',
+    obsWarn: 'WARNING (< 1.00 m)',
+    obsCollision: 'COLLISION HAZARD!',
+    obsOffPrefix: '3D Obstacle Check:',
+    obsOffText: 'Obstacle simulation not enabled (Clear Site)',
+    sec4Title: '4. 3D Crane Geometry & Operating Dimensions',
+    fig1Caption: 'Fig. 1: 3D Side Elevation View (Radius, Heights, Boom Length, Angle & Obstacle Clearance)',
+    fig2Caption: 'Fig. 2: Top Plan View (Slew & Outriggers)',
+    chipRadius: 'Working Radius (R)',
+    chipLoadH: 'Load Lift Height',
+    chipTipH: 'Boom Tip Height',
+    chipBoomL: 'Boom Length (L)',
+    chipBoomA: 'Boom Angle',
+    chipSlewA: 'Slew Angle',
+    sec5Title: '5. Safety Sign-off & Site Authorization:',
+    signOp: 'Crane Operator',
+    signRigger: 'Rigger / Signalman',
+    signSafety: 'Safety Officer / Site Engineer',
+    p2Title: 'RATED LIFTING CAPACITY LOAD CHART',
+    p2SubtitlePrefix: 'Rated Load Chart:',
+    cfgModel: 'Crane Model',
+    cfgCwt: 'Counterweight (CWT)',
+    cfgOutrigger: 'Outrigger Mode',
+    cfgUnit: 'Capacity Unit',
+    cfgUnitVal: 'Metric Tonnes (t) • 360° Full Range',
+    matrixTitle: 'Rated Capacity Matrix by Working Radius & Boom Length',
+    matrixActiveNote: (r, b) => `★ Blue Cell = Nearest Reference (${r} m / Boom ${b} m)`,
+    tblRadius: 'Radius (m)',
+    tblBoom: (b) => `Boom ${b} m`,
+    opSummaryTitle: 'Interpolated Operating Point Summary',
+    opRadius: 'Working Radius (R):',
+    opBoom: 'Boom Length (L):',
+    opAngleWord: 'Angle',
+    opSwl: 'Interpolated Rated SWL:',
+    opGross: 'Total Gross Load:',
+    opMargin: 'Remaining Margin:',
+    opUtil: '% SWL Utilization:',
+    notesTitle: 'Standard Load Chart Notes & Safety Requirements:',
+    notesList: (pct) => [
+      'Rated capacities include the weight of hook block, slings, and rigging gear (Gross Capacity) — total suspended gross load must not exceed Rated SWL.',
+      `Values shown apply to <strong>${pct}%</strong> outrigger extension on firm, 100% level ground with properly sized outrigger mats suited to allowable soil bearing.`,
+      'When actual radius or boom length falls between chart entries, use the lower conservative rating or the interpolated SWL shown above for approval.',
+      'Do not perform lifting operations when wind speed exceeds manufacturer limits or when load utilization exceeds 100% SWL (Overload).'
+    ],
+    cadSideBanner: 'SIDE-3D ELEVATION VIEW • OPERATING DIMENSIONS',
+    cadTopBanner: 'TOP PLAN VIEW • SLEW & OUTRIGGER FOOTPRINT',
+    cadRadius: (v) => `↔ Radius R: ${v} m`,
+    cadLoadH: (v) => `↨ Load H: ${v} m`,
+    cadTipH: (v) => `▲ Tip H: ${v} m`,
+    cadBoomL: (v) => `Boom Length L: ${v} m`,
+    cadGross: (v) => `Gross Load: ${v} t`,
+    cadObs: (v) => `🏢 Obstacle Clr: ${v} m`,
+    cadFront: '0° Crane Front',
+    cadSlew: (v) => `Slew ${v}°`,
+    cadOutrigger: (l, w, p) => `Outriggers: ${l} × ${w} m (${p}%)`
+  }
+};
+
+function getReportLang() {
+  return state.reportLang === 'en' ? 'en' : 'th';
+}
+
+function getDisplayLoadDesc(rawVal, lang) {
+  const val = (rawVal || '').trim();
+  if (!val) return '—';
+  if (lang === 'en' && val === 'ตู้คอนเทนเนอร์ / ชิ้นงานมาตรฐาน') {
+    return LP_I18N.en.defaultLoadDescDisplay;
+  }
+  return val;
+}
+
+function applyLiftPlanModalLangUI() {
+  const lang = getReportLang();
+  const L = LP_I18N[lang];
+  if (UI.btnLpLangTh) UI.btnLpLangTh.classList.toggle('active', lang === 'th');
+  if (UI.btnLpLangEn) UI.btnLpLangEn.classList.toggle('active', lang === 'en');
+  if (UI.lpModalTitle) UI.lpModalTitle.textContent = L.modalTitle;
+  if (UI.lpPrintBtnText) UI.lpPrintBtnText.textContent = L.printBtn;
+  if (UI.btnPrintLiftPlan) UI.btnPrintLiftPlan.title = L.printTitle;
+
+  const lblIds = [
+    ['lp-lbl-permit-no', 'permitNo', UI.lpInputPermitNo],
+    ['lp-lbl-project', 'projectName', UI.lpInputProject],
+    ['lp-lbl-site', 'siteLocation', UI.lpInputSite],
+    ['lp-lbl-load-desc', 'loadDesc', UI.lpInputLoadDesc],
+    ['lp-lbl-operator', 'operatorName', UI.lpInputOperator],
+    ['lp-lbl-rigger', 'riggerName', UI.lpInputRigger],
+    ['lp-lbl-safety', 'safetyName', UI.lpInputSafety]
+  ];
+  lblIds.forEach(([lblId, key, inputEl]) => {
+    const lblEl = document.getElementById(lblId);
+    if (lblEl) lblEl.textContent = L.formLabels[key];
+    if (inputEl) inputEl.placeholder = L.formPlaceholders[key];
+  });
+}
+
+function setReportLanguage(lang) {
+  state.reportLang = (lang === 'en') ? 'en' : 'th';
+  try {
+    localStorage.setItem('mobileCrane3D_reportLang', state.reportLang);
+  } catch (e) {}
+  applyLiftPlanModalLangUI();
+  if (UI.modalLiftPlan && UI.modalLiftPlan.classList.contains('active')) {
+    const scroller = UI.modalLiftPlan.querySelector('.lift-plan-preview-scroll');
+    const prevTop = scroller ? scroller.scrollTop : 0;
+    exportLiftPlan();
+    if (scroller) scroller.scrollTop = prevTop;
+  }
+}
+
+/* =====================================================================
  * INITIALIZATION & UI POPULATION
  * ===================================================================== */
 function loadProjectMetaFromStorage() {
   try {
+    const savedLang = localStorage.getItem('mobileCrane3D_reportLang');
+    if (savedLang === 'en' || savedLang === 'th') {
+      state.reportLang = savedLang;
+    }
     const raw = localStorage.getItem('mobileCrane3D_projectMeta');
     if (raw) {
       const parsed = JSON.parse(raw);
@@ -9289,6 +9634,7 @@ function loadProjectMetaFromStorage() {
   if (UI.lpInputOperator) UI.lpInputOperator.value = state.projectMeta.operatorName || '';
   if (UI.lpInputRigger) UI.lpInputRigger.value = state.projectMeta.riggerName || '';
   if (UI.lpInputSafety) UI.lpInputSafety.value = state.projectMeta.safetyName || '';
+  applyLiftPlanModalLangUI();
 }
 
 function saveProjectMetaToStorage() {
@@ -9299,11 +9645,12 @@ function saveProjectMetaToStorage() {
 
 function syncProjectMetaToReportDOM() {
   const m = state.projectMeta;
+  const lang = getReportLang();
   const map = {
     permitNo: m.permitNo || 'LP-2026-001',
     projectName: m.projectName || '—',
     siteLocation: m.siteLocation || '—',
-    loadDesc: m.loadDesc || '—',
+    loadDesc: getDisplayLoadDesc(m.loadDesc, lang),
     operatorName: m.operatorName ? `(${m.operatorName})` : '',
     riggerName: m.riggerName ? `(${m.riggerName})` : '',
     safetyName: m.safetyName ? `(${m.safetyName})` : ''
@@ -10006,6 +10353,12 @@ function setupEventListeners() {
       UI.printArea.style.display = 'none';
     });
   }
+  if (UI.btnLpLangTh) {
+    UI.btnLpLangTh.addEventListener('click', () => setReportLanguage('th'));
+  }
+  if (UI.btnLpLangEn) {
+    UI.btnLpLangEn.addEventListener('click', () => setReportLanguage('en'));
+  }
 
   // Responsive Sidebar Drawer Toggle
   if (UI.btnToggleSidebar && UI.sidebarControls) {
@@ -10157,6 +10510,7 @@ function saveLiftPlanJson() {
     soilAllowable: state.soilAllowable,
     matWidth: state.matWidth,
     matLength: state.matLength,
+    reportLang: state.reportLang,
     projectMeta: state.projectMeta
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -10214,10 +10568,16 @@ function loadLiftPlanJson(file) {
       if (typeof d.soilAllowable === 'number') { state.soilAllowable = d.soilAllowable; if (UI.numSoilAllow) UI.numSoilAllow.value = d.soilAllowable.toFixed(2); }
       if (typeof d.matWidth === 'number') { state.matWidth = d.matWidth; if (UI.numMatWidth) UI.numMatWidth.value = d.matWidth.toFixed(2); }
       if (typeof d.matLength === 'number') { state.matLength = d.matLength; if (UI.numMatLength) UI.numMatLength.value = d.matLength.toFixed(2); }
+      if (d.reportLang === 'en' || d.reportLang === 'th') {
+        state.reportLang = d.reportLang;
+        try { localStorage.setItem('mobileCrane3D_reportLang', state.reportLang); } catch (e) {}
+      }
       if (d.projectMeta && typeof d.projectMeta === 'object') {
         Object.assign(state.projectMeta, d.projectMeta);
         saveProjectMetaToStorage();
         loadProjectMetaFromStorage();
+      } else {
+        applyLiftPlanModalLangUI();
       }
       updateCalculations();
       setCameraPreset(state.currentView || 'iso');
@@ -12019,10 +12379,11 @@ function drawViewHeaderBanner(ctx, width, titleText) {
   ctx.restore();
 }
 
-function captureCraneReportViews(metrics) {
+function captureCraneReportViews(metrics, lang) {
   if (!renderer || !scene || !craneGroup || !boomGroup || !hookGroup || !cargoMesh) {
     return { sideDataUrl: '', topDataUrl: '' };
   }
+  const L = LP_I18N[lang === 'en' ? 'en' : 'th'];
 
   const origSize = new THREE.Vector2();
   renderer.getSize(origSize);
@@ -12145,7 +12506,7 @@ function captureCraneReportViews(metrics) {
       ctx,
       (pOrigin.x + pLoadGround.x) * 0.5,
       radDropY,
-      `↔ รัศมี R: ${metrics.workingRadius.toFixed(2)} m`,
+      L.cadRadius(metrics.workingRadius.toFixed(2)),
       'rgba(8, 51, 68, 0.94)', '#06b6d4', '#ecfeff',
       placedSide, capW, capH, (pOrigin.x + pLoadGround.x) * 0.5, radDropY
     );
@@ -12172,7 +12533,7 @@ function captureCraneReportViews(metrics) {
       ctx,
       (pCDimBot.x + pCDimTop.x) * 0.5 + 12,
       (pCDimBot.y + pCDimTop.y) * 0.5,
-      `↨ สูงวัสดุ: ${actualCargoDisplayH.toFixed(2)} m`,
+      L.cadLoadH(actualCargoDisplayH.toFixed(2)),
       'rgba(6, 78, 59, 0.94)', '#10b981', '#ecfdf5',
       placedSide, capW, capH, pCDimTop.x, (pCDimBot.y + pCDimTop.y) * 0.5
     );
@@ -12200,7 +12561,7 @@ function captureCraneReportViews(metrics) {
       ctx,
       pTDimTop.x - 10,
       pTDimTop.y - 20,
-      `▲ สูงปลายบูม: ${metrics.tipHeight.toFixed(2)} m`,
+      L.cadTipH(metrics.tipHeight.toFixed(2)),
       'rgba(120, 53, 15, 0.94)', '#f59e0b', '#fffbeb',
       placedSide, capW, capH, pTDimTop.x, pTDimTop.y
     );
@@ -12230,7 +12591,7 @@ function captureCraneReportViews(metrics) {
       ctx,
       (pBoomStartOff.x + pBoomEndOff.x) * 0.5,
       (pBoomStartOff.y + pBoomEndOff.y) * 0.5 - 18,
-      `ความยาวบูม L: ${metrics.boomLength.toFixed(2)} m`,
+      L.cadBoomL(metrics.boomLength.toFixed(2)),
       'rgba(12, 74, 110, 0.94)', '#38bdf8', '#f0f9ff',
       placedSide, capW, capH, (pBoomStartOff.x + pBoomEndOff.x) * 0.5, (pBoomStartOff.y + pBoomEndOff.y) * 0.5
     );
@@ -12276,7 +12637,7 @@ function captureCraneReportViews(metrics) {
       ctx,
       pCargoBelow.x,
       pCargoBelow.y + 12,
-      `น้ำหนักรวม: ${metrics.grossLoad.toFixed(2)} t`,
+      L.cadGross(metrics.grossLoad.toFixed(2)),
       'rgba(30, 41, 59, 0.94)', '#94a3b8', '#f8fafc',
       placedSide, capW, capH, pCargoActual.x, pCargoActual.y
     );
@@ -12293,13 +12654,13 @@ function captureCraneReportViews(metrics) {
         ctx,
         (pClrA.x + pClrB.x) * 0.5,
         (pClrA.y + pClrB.y) * 0.5,
-        `🏢 ห่างอาคาร: ${obsRes.minClearance.toFixed(2)} m`,
+        L.cadObs(obsRes.minClearance.toFixed(2)),
         clrBg, clrHex, '#ffffff',
         placedSide, capW, capH, (pClrA.x + pClrB.x) * 0.5, (pClrA.y + pClrB.y) * 0.5
       );
     }
 
-    drawViewHeaderBanner(ctx, capW, 'SIDE-3D ELEVATION VIEW • มุมมองด้านข้างแสดงระยะครบถ้วน');
+    drawViewHeaderBanner(ctx, capW, L.cadSideBanner);
     const sideDataUrl = compCanvas.toDataURL('image/png');
 
     /* === VIEW 2: TOP PLAN VIEW (560 x 700) === */
@@ -12344,7 +12705,7 @@ function captureCraneReportViews(metrics) {
       tctx,
       pTopFront.x,
       Math.max(58, pTopFront.y - 18),
-      '0° หน้าเครน',
+      L.cadFront,
       'rgba(15, 23, 42, 0.92)', '#64748b', '#e2e8f0',
       placedTop, topW, topH
     );
@@ -12393,7 +12754,7 @@ function captureCraneReportViews(metrics) {
       tctx,
       pTopSlewMid.x,
       pTopSlewMid.y,
-      `สวิง ${metrics.slewAngle.toFixed(2)}°`,
+      L.cadSlew(metrics.slewAngle.toFixed(2)),
       'rgba(66, 32, 6, 0.94)', '#facc15', '#fef9c3',
       placedTop, topW, topH, pTopSlewMid.x, pTopSlewMid.y
     );
@@ -12403,12 +12764,12 @@ function captureCraneReportViews(metrics) {
       tctx,
       topW * 0.5,
       topH - 24,
-      `ขาค้ำยัน: ${outL.toFixed(2)} × ${outW.toFixed(2)} m (${Math.round(metrics.outriggerFactor * 100)}%)`,
+      L.cadOutrigger(outL.toFixed(2), outW.toFixed(2), Math.round(metrics.outriggerFactor * 100)),
       'rgba(15, 23, 42, 0.94)', '#f59e0b', '#fef3c7',
       placedTop, topW, topH
     );
 
-    drawViewHeaderBanner(tctx, topW, 'PLAN VIEW • มุมมองด้านบน');
+    drawViewHeaderBanner(tctx, topW, L.cadTopBanner);
     const topDataUrl = topCanvas.toDataURL('image/png');
 
     return { sideDataUrl, topDataUrl };
@@ -12426,7 +12787,8 @@ function captureCraneReportViews(metrics) {
   }
 }
 
-function buildPrintLoadChartTableHTML(crane, outriggerFactor) {
+function buildPrintLoadChartTableHTML(crane, outriggerFactor, lang) {
+  const L = LP_I18N[lang === 'en' ? 'en' : 'th'];
   const radii = crane.radii || [];
   const boomLengths = crane.boomLengths || [];
   const chart = crane.chart || {};
@@ -12452,10 +12814,10 @@ function buildPrintLoadChartTableHTML(crane, outriggerFactor) {
   });
 
   const compactClass = radii.length >= 21 ? 'compact' : '';
-  let html = `<table class="lp-lc-table ${compactClass}"><thead><tr><th>รัศมี (m)</th>`;
+  let html = `<table class="lp-lc-table ${compactClass}"><thead><tr><th>${L.tblRadius}</th>`;
   boomLengths.forEach(b => {
     const isCol = b === nearestB;
-    html += `<th class="${isCol ? 'lc-col-active' : ''}">บูม ${b.toFixed(2)} m</th>`;
+    html += `<th class="${isCol ? 'lc-col-active' : ''}">${L.tblBoom(b.toFixed(2))}</th>`;
   });
   html += '</tr></thead><tbody>';
 
@@ -12497,13 +12859,16 @@ function exportLiftPlan() {
   const crane = state.activeCrane;
   if (!crane) return;
 
+  const lang = getReportLang();
+  const L = LP_I18N[lang];
+  applyLiftPlanModalLangUI();
+
   const grossLoad = state.loadWeight + state.riggingWeight;
   const ratedSWL = getRatedCapacity(state.workingRadius, state.boomLength);
   const percent = ratedSWL > 0 ? (grossLoad / ratedSWL) * 100 : 999;
   const margin = ratedSWL - grossLoad;
   const tipHeight = 2.4 + state.boomLength * Math.sin((state.boomAngle * Math.PI) / 180);
-  const outriggerText = UI.selectOutriggerMode.options[UI.selectOutriggerMode.selectedIndex].text;
-  const now = new Date().toLocaleString('th-TH');
+  const now = new Date().toLocaleString(L.locale);
 
   const actualCargoH = Math.min(state.targetHeight, Math.max(0.6, tipHeight - 5.7));
   const groundRes = state.lastGroundResult || calculateGroundBearing(crane, grossLoad);
@@ -12520,83 +12885,93 @@ function exportLiftPlan() {
     boomAngle: state.boomAngle,
     slewAngle: state.slewAngle,
     outriggerFactor: state.outriggerFactor
-  });
+  }, lang);
 
-  const lcData = buildPrintLoadChartTableHTML(crane, state.outriggerFactor);
+  const lcData = buildPrintLoadChartTableHTML(crane, state.outriggerFactor, lang);
   const statusBg = percent < 85 ? '#e6f9ed' : percent <= 100 ? '#fff8e6' : '#ffebee';
   const statusColor = percent < 85 ? '#067a46' : percent <= 100 ? '#b27b00' : '#d32f2f';
   const statusLabel = percent < 85
-    ? '✓ ปลอดภัย (SAFE LIFT)'
+    ? L.statusSafe
     : percent <= 100
-      ? '⚠ เตือนใกล้พิกัด (CRITICAL LIFT)'
-      : '❌ อันตรายเกินพิกัดยก (OVERLOAD HAZARD)';
+      ? L.statusCrit
+      : L.statusOver;
 
   const groundBg = groundRes.status === 'SAFE' ? '#e6f9ed' : groundRes.status === 'MARGINAL' ? '#fff8e6' : '#ffebee';
   const groundCol = groundRes.status === 'SAFE' ? '#067a46' : groundRes.status === 'MARGINAL' ? '#b27b00' : '#d32f2f';
+  const groundStatusTxt = groundRes.status === 'SAFE'
+    ? L.groundSafe
+    : groundRes.status === 'MARGINAL'
+      ? L.groundMarginal
+      : L.groundDanger;
+
+  const obsStatusTxt = obsRes
+    ? (obsRes.status === 'CLEAR' ? L.obsClear : obsRes.status === 'WARNING' ? L.obsWarn : L.obsCollision)
+    : '';
 
   const obsHTML = state.obstacleEnabled && obsRes
     ? `<div style="margin-top:4px; padding:4px 6px; border-radius:4px; background:${obsRes.status === 'CLEAR' ? '#e6f9ed' : obsRes.status === 'WARNING' ? '#fff8e6' : '#ffebee'}; font-size:10.5px;">
-         <strong>อาคารสิ่งกีดขวาง (${state.obstacleDist.toFixed(1)}m / สูง ${state.obstacleHeight.toFixed(1)}m):</strong>
-         ห่างบูม <b>${obsRes.boomClearance.toFixed(2)}m</b> | ห่างวัสดุ <b>${obsRes.cargoClearance.toFixed(2)}m</b> —
-         <span style="font-weight:800; color:${obsRes.status === 'CLEAR' ? '#067a46' : obsRes.status === 'WARNING' ? '#b27b00' : '#d32f2f'};">${obsRes.statusLabel}</span>
+         <strong>${L.obsEnabledPrefix} (${state.obstacleDist.toFixed(1)}m / ${L.obsHeightShort} ${state.obstacleHeight.toFixed(1)}m):</strong>
+         ${L.obsBoomClr} <b>${obsRes.boomClearance.toFixed(2)}m</b> | ${L.obsCargoClr} <b>${obsRes.cargoClearance.toFixed(2)}m</b> —
+         <span style="font-weight:800; color:${obsRes.status === 'CLEAR' ? '#067a46' : obsRes.status === 'WARNING' ? '#b27b00' : '#d32f2f'};">${obsStatusTxt}</span>
        </div>`
     : `<div style="margin-top:4px; padding:4px 6px; border-radius:4px; background:#f1f5f9; font-size:10.5px; color:#475569;">
-         <strong>สิ่งกีดขวาง 3 มิติ (Obstacle Check):</strong> ไม่ได้เปิดจำลองอาคารสิ่งกีดขวาง (Clear Site)
+         <strong>${L.obsOffPrefix}</strong> ${L.obsOffText}
        </div>`;
 
   const outriggerPercent = Math.round(state.outriggerFactor * 100);
   const outL = crane.outriggerBase ? crane.outriggerBase.length : 7.0;
   const outW = (crane.outriggerBase ? crane.outriggerBase.width : 6.4) * state.outriggerFactor;
   const pm = state.projectMeta;
+  const notesItemsHTML = L.notesList(outriggerPercent).map(item => `<li>${item}</li>`).join('');
 
   const page1HTML = `
-    <div class="print-page lp-page">
+    <div class="print-page lp-page" data-report-lang="${lang}">
       <div class="lp-header" style="margin-bottom: 7px; padding-bottom: 6px;">
         <div>
-          <h1>CRANE LIFTING PLAN & SAFETY VERIFICATION PERMIT</h1>
-          <h2>แผนการยกและตรวจสอบความปลอดภัยโมบายเครนประจำวัน</h2>
+          <h1>${L.p1Title}</h1>
+          <h2>${L.p1Subtitle}</h2>
         </div>
         <div class="lp-meta-right">
-          <div class="lp-page-badge">PAGE 1 / 2</div>
-          <div><strong>Permit:</strong> <span data-meta="permitNo">${escapeReportHTML(pm.permitNo || 'LP-2026-001')}</span> | ${now}</div>
+          <div class="lp-page-badge">${L.pageBadge1}</div>
+          <div><strong>${L.permitLbl}</strong> <span data-meta="permitNo">${escapeReportHTML(pm.permitNo || 'LP-2026-001')}</span> | ${now}</div>
         </div>
       </div>
 
       <div class="lp-project-strip">
-        <div><strong>โครงการ (Project)</strong><span data-meta="projectName">${escapeReportHTML(pm.projectName || '—')}</span></div>
-        <div><strong>สถานที่ปฏิบัติงาน (Site Location)</strong><span data-meta="siteLocation">${escapeReportHTML(pm.siteLocation || '—')}</span></div>
-        <div style="grid-column: span 2;"><strong>รายละเอียดชิ้นงาน (Load Description)</strong><span data-meta="loadDesc">${escapeReportHTML(pm.loadDesc || '—')}</span></div>
+        <div><strong>${L.stripProject}</strong><span data-meta="projectName">${escapeReportHTML(pm.projectName || '—')}</span></div>
+        <div><strong>${L.stripSite}</strong><span data-meta="siteLocation">${escapeReportHTML(pm.siteLocation || '—')}</span></div>
+        <div style="grid-column: span 2;"><strong>${L.stripLoad}</strong><span data-meta="loadDesc">${escapeReportHTML(getDisplayLoadDesc(pm.loadDesc, lang))}</span></div>
       </div>
 
       <div class="lp-section" style="padding: 6px 10px; margin-bottom: 7px;">
-        <h3>1. ข้อมูลโมบายเครน (Crane Specifications)</h3>
+        <h3>${L.sec1Title}</h3>
         <table class="lp-table" style="font-size: 10.5px;">
           <tr>
-            <td><strong>ยี่ห้อ/รุ่น:</strong> ${crane.brand} ${crane.model} (${crane.tonnage.toFixed(2)} t • ${crane.axles} Axles)</td>
-            <td><strong>ความยาวบูม / องศา / สวิง:</strong> ${state.boomLength.toFixed(2)} m / ${state.boomAngle.toFixed(2)}° / ${state.slewAngle.toFixed(2)}°</td>
+            <td><strong>${L.lblBrandModel}</strong> ${crane.brand} ${crane.model} (${crane.tonnage.toFixed(2)} t • ${crane.axles} ${L.axlesTxt})</td>
+            <td><strong>${L.lblBoomAngleSlew}</strong> ${state.boomLength.toFixed(2)} m / ${state.boomAngle.toFixed(2)}° / ${state.slewAngle.toFixed(2)}°</td>
           </tr>
           <tr>
-            <td><strong>น้ำหนักถ่วง (CWT):</strong> ${crane.counterweight.toFixed(2)} Ton</td>
-            <td><strong>ขาค้ำยัน:</strong> ${outriggerPercent}% Extended (${outL.toFixed(2)} × ${outW.toFixed(2)} m)</td>
+            <td><strong>${L.lblCwt}</strong> ${crane.counterweight.toFixed(2)} Ton</td>
+            <td><strong>${L.lblOutrigger}</strong> ${outriggerPercent}% ${L.extendedTxt} (${outL.toFixed(2)} × ${outW.toFixed(2)} m)</td>
           </tr>
         </table>
       </div>
 
       <div class="lp-two-col">
         <div class="lp-section" style="padding: 6px 10px;">
-          <h3>2. วิเคราะห์พิกัดยก (Capacity & SWL)</h3>
+          <h3>${L.sec2Title}</h3>
           <table class="lp-table" style="font-size: 10.5px;">
             <tr>
-              <td><strong>Net / Rigging:</strong> ${state.loadWeight.toFixed(2)} / ${state.riggingWeight.toFixed(2)} t</td>
-              <td><strong>รัศมี (R):</strong> <b>${state.workingRadius.toFixed(2)} m</b></td>
+              <td><strong>${L.lblNetRig}</strong> ${state.loadWeight.toFixed(2)} / ${state.riggingWeight.toFixed(2)} t</td>
+              <td><strong>${L.lblRadiusShort}</strong> <b>${state.workingRadius.toFixed(2)} m</b></td>
             </tr>
             <tr style="background: #e2e8f0;">
-              <td><strong>Gross Load:</strong> <span style="color:#0056b3;font-weight:800;">${grossLoad.toFixed(2)} t</span></td>
-              <td><strong>Rated SWL:</strong> <span style="color:#0369a1;font-weight:800;">${ratedSWL.toFixed(2)} t</span></td>
+              <td><strong>${L.lblGrossLoad}</strong> <span style="color:#0056b3;font-weight:800;">${grossLoad.toFixed(2)} t</span></td>
+              <td><strong>${L.lblRatedSwl}</strong> <span style="color:#0369a1;font-weight:800;">${ratedSWL.toFixed(2)} t</span></td>
             </tr>
             <tr>
-              <td><strong>Margin:</strong> <span style="font-weight:700;color:${margin >= 0 ? '#067a46' : '#d32f2f'};">${margin >= 0 ? '+' : ''}${margin.toFixed(2)} t</span></td>
-              <td><strong>สูงวัสดุ / ปลายบูม:</strong> ${actualCargoH.toFixed(2)} / ${tipHeight.toFixed(2)} m</td>
+              <td><strong>${L.lblMargin}</strong> <span style="font-weight:700;color:${margin >= 0 ? '#067a46' : '#d32f2f'};">${margin >= 0 ? '+' : ''}${margin.toFixed(2)} t</span></td>
+              <td><strong>${L.lblHeightCargoTip}</strong> ${actualCargoH.toFixed(2)} / ${tipHeight.toFixed(2)} m</td>
             </tr>
             <tr style="background: ${statusBg};">
               <td colspan="2" style="padding: 4px 6px;">
@@ -12607,13 +12982,13 @@ function exportLiftPlan() {
         </div>
 
         <div class="lp-section" style="padding: 6px 10px;">
-          <h3>3. แรงกดดินและสิ่งกีดขวาง (Ground & Obstacle)</h3>
+          <h3>${L.sec3Title}</h3>
           <div style="font-size: 10.5px; line-height: 1.38;">
-            <div><strong>แรงกดขาสูงสุด (F_max):</strong> <span style="color:#0369a1;font-weight:700;">${groundRes.maxLeg.toFixed(2)} Ton (${groundRes.maxLegName})</span> | <b>CWT+รถ:</b> ${groundRes.craneTotalWeight.toFixed(1)}t</div>
-            <div><strong>แรงกดดิน / กำลังรับดิน:</strong> <b>${groundRes.actualPressure.toFixed(2)}</b> / ${groundRes.allowPressure.toFixed(2)} t/m² (${groundRes.actualKpa.toFixed(0)} kPa)</div>
-            <div><strong>แผ่นรองที่ใช้ / แนะนำขั้นต่ำ:</strong> ${state.matWidth.toFixed(2)}×${state.matLength.toFixed(2)}m (${groundRes.matArea.toFixed(2)}m²) • <b>แนะนำ ≥ ${groundRes.minMatSide.toFixed(2)}×${groundRes.minMatSide.toFixed(2)}m</b></div>
+            <div><strong>${L.lblMaxLeg}</strong> <span style="color:#0369a1;font-weight:700;">${groundRes.maxLeg.toFixed(2)} Ton (${groundRes.maxLegName})</span> | <b>${L.lblCraneWt}</b> ${groundRes.craneTotalWeight.toFixed(1)}t</div>
+            <div><strong>${L.lblGroundAllow}</strong> <b>${groundRes.actualPressure.toFixed(2)}</b> / ${groundRes.allowPressure.toFixed(2)} t/m² (${groundRes.actualKpa.toFixed(0)} kPa)</div>
+            <div><strong>${L.lblMatUsedMin}</strong> ${state.matWidth.toFixed(2)}×${state.matLength.toFixed(2)}m (${groundRes.matArea.toFixed(2)}m²) • <b>${L.lblMinRecPrefix} ${groundRes.minMatSide.toFixed(2)}×${groundRes.minMatSide.toFixed(2)}m</b></div>
             <div style="margin-top:3px; padding:3px 6px; border-radius:4px; background:${groundBg}; font-weight:700; color:${groundCol};">
-              ประเมินฐานรากดิน: ${groundRes.statusLabel} (${groundRes.utilizationPct.toFixed(0)}%)
+              ${L.lblGroundEval} ${groundStatusTxt} (${groundRes.utilizationPct.toFixed(0)}%)
             </div>
             ${obsHTML}
           </div>
@@ -12621,110 +12996,108 @@ function exportLiftPlan() {
       </div>
 
       <div class="lp-section" style="padding: 6px 10px; margin-bottom: 7px;">
-        <h3>4. แบบจำลองเครน 3 มิติและระยะปฏิบัติการ (3D Crane Geometry & Dimensions)</h3>
+        <h3>${L.sec4Title}</h3>
         <div class="lp-visual-grid">
           <div class="lp-visual-card">
             <img src="${views.sideDataUrl}" alt="3D Crane Side-3/4 Elevation View">
-            <div class="lp-visual-caption">รูปที่ 1: มุมมองด้านข้าง 3 มิติ (แสดงระยะรัศมี ความสูง บูม องศา และระยะสิ่งกีดขวาง)</div>
+            <div class="lp-visual-caption">${L.fig1Caption}</div>
           </div>
           <div class="lp-visual-card">
             <img src="${views.topDataUrl}" alt="3D Crane Top Plan View">
-            <div class="lp-visual-caption">รูปที่ 2: มุมมองด้านบน (Plan View)</div>
+            <div class="lp-visual-caption">${L.fig2Caption}</div>
           </div>
         </div>
         <div class="lp-dim-strip">
           <div class="lp-dim-chip" style="border-top-color: #06b6d4;">
-            <span class="lbl">รัศมีปฏิบัติการ (R)</span>
+            <span class="lbl">${L.chipRadius}</span>
             <span class="val">${state.workingRadius.toFixed(2)} m</span>
           </div>
           <div class="lp-dim-chip" style="border-top-color: #10b981;">
-            <span class="lbl">ความสูงยกวัสดุ</span>
+            <span class="lbl">${L.chipLoadH}</span>
             <span class="val">${actualCargoH.toFixed(2)} m</span>
           </div>
           <div class="lp-dim-chip" style="border-top-color: #f59e0b;">
-            <span class="lbl">ความสูงปลายบูม</span>
+            <span class="lbl">${L.chipTipH}</span>
             <span class="val">${tipHeight.toFixed(2)} m</span>
           </div>
           <div class="lp-dim-chip" style="border-top-color: #3b82f6;">
-            <span class="lbl">ความยาวบูม (L)</span>
+            <span class="lbl">${L.chipBoomL}</span>
             <span class="val">${state.boomLength.toFixed(2)} m</span>
           </div>
           <div class="lp-dim-chip" style="border-top-color: #eab308;">
-            <span class="lbl">องศาบูม (Angle)</span>
+            <span class="lbl">${L.chipBoomA}</span>
             <span class="val">${state.boomAngle.toFixed(2)}°</span>
           </div>
           <div class="lp-dim-chip" style="border-top-color: #8b5cf6;">
-            <span class="lbl">มุมสวิง (Slew)</span>
+            <span class="lbl">${L.chipSlewA}</span>
             <span class="val">${state.slewAngle.toFixed(2)}°</span>
           </div>
         </div>
       </div>
 
       <div class="lp-signoff" style="margin-top: 6px; padding: 7px 10px;">
-        <strong>5. Safety Sign-off / ลายมือชื่อผู้รับผิดชอบหน้างาน:</strong>
+        <strong>${L.sec5Title}</strong>
         <div class="lp-signoff-grid" style="margin-top: 20px;">
-          <div class="lp-signoff-col">_________________________<br>ผู้ควบคุมเครน (Crane Operator)<br><span data-meta="operatorName" style="color:#0369a1;font-weight:600;">${pm.operatorName ? '(' + escapeReportHTML(pm.operatorName) + ')' : ''}</span></div>
-          <div class="lp-signoff-col">_________________________<br>ผู้ให้สัญญาณ/ควบคุมการยก (Rigger)<br><span data-meta="riggerName" style="color:#0369a1;font-weight:600;">${pm.riggerName ? '(' + escapeReportHTML(pm.riggerName) + ')' : ''}</span></div>
-          <div class="lp-signoff-col">_________________________<br>จป. / วิศวกรควบคุมงาน (Safety / Engineer)<br><span data-meta="safetyName" style="color:#0369a1;font-weight:600;">${pm.safetyName ? '(' + escapeReportHTML(pm.safetyName) + ')' : ''}</span></div>
+          <div class="lp-signoff-col">_________________________<br>${L.signOp}<br><span data-meta="operatorName" style="color:#0369a1;font-weight:600;">${pm.operatorName ? '(' + escapeReportHTML(pm.operatorName) + ')' : ''}</span></div>
+          <div class="lp-signoff-col">_________________________<br>${L.signRigger}<br><span data-meta="riggerName" style="color:#0369a1;font-weight:600;">${pm.riggerName ? '(' + escapeReportHTML(pm.riggerName) + ')' : ''}</span></div>
+          <div class="lp-signoff-col">_________________________<br>${L.signSafety}<br><span data-meta="safetyName" style="color:#0369a1;font-weight:600;">${pm.safetyName ? '(' + escapeReportHTML(pm.safetyName) + ')' : ''}</span></div>
         </div>
       </div>
     </div>
   `;
 
   const page2HTML = `
-    <div class="print-page lp-page">
+    <div class="print-page lp-page" data-report-lang="${lang}">
       <div class="lp-header">
         <div>
-          <h1>RATED LIFTING CAPACITY LOAD CHART</h1>
-          <h2>ตารางพิกัดยกปลอดภัย: ${crane.brand} ${crane.model} (${crane.tonnage.toFixed(2)} Ton - ${crane.category})</h2>
+          <h1>${L.p2Title}</h1>
+          <h2>${L.p2SubtitlePrefix} ${crane.brand} ${crane.model} (${crane.tonnage.toFixed(2)} Ton - ${crane.category})</h2>
         </div>
         <div class="lp-meta-right">
-          <div class="lp-page-badge">PAGE 2 / 2</div>
-          <div><strong>Permit:</strong> <span data-meta="permitNo">${escapeReportHTML(pm.permitNo || 'LP-2026-001')}</span> | ${now}</div>
+          <div class="lp-page-badge">${L.pageBadge2}</div>
+          <div><strong>${L.permitLbl}</strong> <span data-meta="permitNo">${escapeReportHTML(pm.permitNo || 'LP-2026-001')}</span> | ${now}</div>
         </div>
       </div>
 
       <div class="lp-config-bar">
-        <div><strong>รุ่นโมบายเครน (Model)</strong>${crane.brand} ${crane.model} (${crane.axles} Axles)</div>
-        <div><strong>น้ำหนักถ่วง (Counterweight)</strong>${crane.counterweight.toFixed(2)} Ton</div>
-        <div><strong>โหมดขาค้ำยัน (Outrigger Mode)</strong>${outriggerPercent}% Extended (${outL.toFixed(2)} × ${outW.toFixed(2)} m)</div>
-        <div><strong>หน่วยพิกัดยก (Unit)</strong>Metric Tonnes (t) • กางรอบตัว 360°</div>
+        <div><strong>${L.cfgModel}</strong>${crane.brand} ${crane.model} (${crane.axles} ${L.axlesTxt})</div>
+        <div><strong>${L.cfgCwt}</strong>${crane.counterweight.toFixed(2)} Ton</div>
+        <div><strong>${L.cfgOutrigger}</strong>${outriggerPercent}% ${L.extendedTxt} (${outL.toFixed(2)} × ${outW.toFixed(2)} m)</div>
+        <div><strong>${L.cfgUnit}</strong>${L.cfgUnitVal}</div>
       </div>
 
       <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-        <strong style="font-family: 'Prompt', sans-serif; color: #0f172a;">ตารางพิกัดยกตามระยะรัศมีและความยาวบูม (Rated Capacity Matrix)</strong>
-        <span style="color: #0369a1; font-weight: 600;">★ ช่องสีน้ำเงิน = จุดอ้างอิงใกล้เคียงสุด (${lcData.nearestR.toFixed(2)} m / บูม ${lcData.nearestB.toFixed(2)} m)</span>
+        <strong style="font-family: 'Prompt', sans-serif; color: #0f172a;">${L.matrixTitle}</strong>
+        <span style="color: #0369a1; font-weight: 600;">${L.matrixActiveNote(lcData.nearestR.toFixed(2), lcData.nearestB.toFixed(2))}</span>
       </div>
 
       ${lcData.tableHTML}
 
       <div class="lp-op-summary">
         <strong style="font-family: 'Prompt', sans-serif; color: #1e3a8a; display: block; margin-bottom: 4px;">
-          สรุปค่าจุดทำงานจริงแบบประมาณค่าในช่วง (Interpolated Operating Point Summary)
+          ${L.opSummaryTitle}
         </strong>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-          <div><strong>รัศมีปฏิบัติการ (R):</strong> ${state.workingRadius.toFixed(2)} m</div>
-          <div><strong>ความยาวบูม (L):</strong> ${state.boomLength.toFixed(2)} m (องศา ${state.boomAngle.toFixed(2)}°)</div>
-          <div><strong>พิกัดยกประเมิน (Rated SWL):</strong> <span style="color:#0369a1; font-weight:800;">${ratedSWL.toFixed(2)} Ton</span></div>
-          <div><strong>น้ำหนักยกรวม (Gross Load):</strong> ${grossLoad.toFixed(2)} Ton</div>
-          <div><strong>ความปลอดภัยคงเหลือ (Margin):</strong> ${margin >= 0 ? '+' : ''}${margin.toFixed(2)} Ton</div>
-          <div><strong>% SWL Utilization:</strong> <span style="color:${statusColor}; font-weight:800;">${percent > 300 ? '>300%' : percent.toFixed(2) + '%'}</span></div>
+          <div><strong>${L.opRadius}</strong> ${state.workingRadius.toFixed(2)} m</div>
+          <div><strong>${L.opBoom}</strong> ${state.boomLength.toFixed(2)} m (${L.opAngleWord} ${state.boomAngle.toFixed(2)}°)</div>
+          <div><strong>${L.opSwl}</strong> <span style="color:#0369a1; font-weight:800;">${ratedSWL.toFixed(2)} Ton</span></div>
+          <div><strong>${L.opGross}</strong> ${grossLoad.toFixed(2)} Ton</div>
+          <div><strong>${L.opMargin}</strong> ${margin >= 0 ? '+' : ''}${margin.toFixed(2)} Ton</div>
+          <div><strong>${L.opUtil}</strong> <span style="color:${statusColor}; font-weight:800;">${percent > 300 ? '>300%' : percent.toFixed(2) + '%'}</span></div>
         </div>
       </div>
 
       <div class="lp-notes-box">
-        <strong>หมายเหตุและข้อกำหนดความปลอดภัยมาตรฐาน (Standard Load Chart Notes):</strong>
+        <strong>${L.notesTitle}</strong>
         <ul>
-          <li>ค่าพิกัดในตารางรวมอุปกรณ์ช่วยยก ตะขอ และสลิงแล้ว (Gross Capacity) — ต้องนำน้ำหนักชิ้นงานรวมกับตะขอ/สลิงเทียบไม่เกิน Rated SWL</li>
-          <li>ตัวเลขแสดงค่าเป็นระดับขาค้ำยัน <strong>${outriggerPercent}%</strong> บนพื้นแข็งได้ระดับแนวราบ 100% พร้อมแผ่นรองรับขา (Outrigger Mats) ที่เหมาะสมกับแรงกดดิน</li>
-          <li>กรณีระยะรัศมีหรือความยาวบูมอยู่ระหว่างช่องตาราง ให้ยึดค่าที่ต่ำกว่าเป็นหลัก หรือใช้ค่าประมาณช่วง (Interpolated Rated SWL) ด้านบนประกอบการอนุมัติ</li>
-          <li>ห้ามทำการยกเมื่อมีความเร็วลมเกินพิกัดคู่มือผู้ผลิต หรือเมื่อค่าการใช้งานเกิน 100% SWL (Overload) โดยเด็ดขาด</li>
+          ${notesItemsHTML}
         </ul>
       </div>
     </div>
   `;
 
   const reportHTML = page1HTML + page2HTML;
+  UI.printArea.setAttribute('data-report-lang', lang);
   UI.printArea.innerHTML = reportHTML;
   if (UI.liftPlanPreviewBody) {
     UI.liftPlanPreviewBody.innerHTML = reportHTML;
